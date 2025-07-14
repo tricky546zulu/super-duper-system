@@ -129,7 +129,6 @@
                         <li class="pt-4"><h3 class="px-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Protocols</h3></li>
                         <li><a href="#procedures" class="sidebar-link block p-2 rounded-md text-slate-300 hover:bg-slate-700 hover:text-white">Procedures</a></li>
                         <li><a href="#patient-care-plans" class="sidebar-link block p-2 rounded-md text-slate-300 hover:bg-slate-700 hover:text-white">Patient Care Plans</a></li>
-                        <li><a href="#medications" class="sidebar-link block p-2 rounded-md text-slate-300 hover:bg-slate-700 hover:text-white">Medications</a></li>
                         <li class="pt-4"><h3 class="px-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Reference</h3></li>
                         <li><a href="#policies" class="sidebar-link block p-2 rounded-md text-slate-300 hover:bg-slate-700 hover:text-white">Policies</a></li>
                         <li><a href="#version-controls" class="sidebar-link block p-2 rounded-md text-slate-300 hover:bg-slate-700 hover:text-white">Version Controls</a></li>
@@ -526,11 +525,15 @@
                     const content = toggle.nextElementSibling;
                     const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
 
-                    // Close all other accordions
+                    // Close all accordions before opening the new one
+                    document.querySelectorAll('.accordion-content').forEach(c => {
+                        if (c !== content) {
+                            c.classList.add('hidden');
+                        }
+                    });
                     document.querySelectorAll('.accordion-toggle').forEach(t => {
                         if (t !== toggle) {
                             t.setAttribute('aria-expanded', 'false');
-                            t.nextElementSibling.classList.add('hidden');
                         }
                     });
 
