@@ -60,6 +60,8 @@
         .accordion-toggle svg.indicator { transition: transform 0.3s; }
         .accordion-toggle[aria-expanded="true"] svg.indicator { transform: rotate(180deg); }
 
+        .az-nav-button.active { background-color: #007bff; color: #ffffff; font-weight: 600; }
+
         /* Custom Card Styles */
         .accordion-item {
             border: 1px solid #374151;
@@ -158,6 +160,7 @@
                     </section>
                     <section id="medications" class="protocol-section mb-8">
                         <h2 class="text-2xl font-bold mb-4 text-cyan-400 border-b-2 border-slate-700 pb-2 sticky top-[68px] bg-slate-900 py-2 z-10">Medications</h2>
+                        <div id="med-az-nav" class="flex flex-wrap justify-center gap-2 mb-4"></div>
                         <div id="medications-content-wrapper" class="space-y-4"></div>
                     </section>
                     <section id="policies" class="protocol-section mb-8">
@@ -326,14 +329,17 @@
             // --- Medication Data ---
             const medicationData = newMedications;
 
-            function populateMedications() {
+            function populateMedications(filter = '') {
                 const wrapper = document.getElementById('medications-content-wrapper');
                 if (!wrapper) return;
+                wrapper.innerHTML = '';
+                const filteredMeds = medicationData.filter(med => med.name.toLowerCase().startsWith(filter.toLowerCase()));
 
-                medicationData.forEach(med => {
+                filteredMeds.forEach(med => {
                     const accordionItem = document.createElement('div');
                     accordionItem.className = 'accordion-item bg-theme-content rounded-lg shadow-md overflow-hidden';
                     accordionItem.dataset.keywords = `${med.name} ${med.indications} ${med.contraindications}`;
+                    accordionItem.dataset.letter = med.name.charAt(0).toUpperCase();
 
                     let dosingList = '';
                     for (const [key, value] of Object.entries(med.dosing)) {
@@ -377,6 +383,32 @@
             populateAccordion('patient-care-plans-content-wrapper', contentData.patientCarePlans);
             populateAccordion('policies-content-wrapper', contentData.policies);
             populateMedications();
+
+            // --- A-Z Navigation for Medications ---
+            const azNavWrapper = document.getElementById('med-az-nav');
+            if (azNavWrapper) {
+                const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+                alphabet.forEach(letter => {
+                    const letterButton = document.createElement('button');
+                    letterButton.className = 'az-nav-button px-3 py-1 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700';
+                    letterButton.textContent = letter;
+                    letterButton.addEventListener('click', () => {
+                        document.querySelectorAll('.az-nav-button').forEach(btn => btn.classList.remove('active'));
+                        letterButton.classList.add('active');
+                        populateMedications(letter);
+                    });
+                    azNavWrapper.appendChild(letterButton);
+                });
+                const allButton = document.createElement('button');
+                allButton.className = 'az-nav-button px-3 py-1 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700 active';
+                allButton.textContent = 'All';
+                allButton.addEventListener('click', () => {
+                    document.querySelectorAll('.az-nav-button').forEach(btn => btn.classList.remove('active'));
+                    allButton.classList.add('active');
+                    populateMedications('');
+                });
+                azNavWrapper.appendChild(allButton);
+            }
 
             // --- Favorites Logic ---
             let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
